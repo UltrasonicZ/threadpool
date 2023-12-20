@@ -4,14 +4,16 @@
 #include <mutex>
 #include <condition_variable>
 #include <functional>
+#include <iostream>
 
 class ThreadPool {
 public:
-    explicit ThreadPool(size_t minthreadnum, size_t maxthreadnum);
+    explicit ThreadPool(size_t pool_size);
     ~ThreadPool();
     // 添加任务到线程池   
     template<class F, class... Args>
     void AddTask(F&& f, Args&&... args) {
+        std::cout << "AddTask : " << std::endl; 
         auto task = std::bind(std::forward<F>(f), std::forward<Args>(args)...);
         {
             std::unique_lock<std::mutex> lock(queue_mutex_);
@@ -23,9 +25,7 @@ public:
 private:
     void WorkerThread();
 private:
-    size_t min_thread_;
-    size_t max_thread_;
-    size_t active_thread_;
+    size_t pool_size_;
     bool is_shutdown_;
     std::mutex queue_mutex_;
     std::vector<std::thread> threads_;

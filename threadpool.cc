@@ -1,14 +1,11 @@
 #include "threadpool.h"
 
-ThreadPool::ThreadPool(size_t minthreadnum, size_t maxthreadnum) 
+ThreadPool::ThreadPool(size_t pool_size) 
     : is_shutdown_(false)
-    , min_thread_(minthreadnum)
-    , max_thread_(maxthreadnum)
-    , active_thread_(0) 
+    , pool_size_(pool_size)
 {
-    for (size_t i = 0; i < minthreadnum; ++i) {
+    for (size_t i = 0; i < pool_size_; ++i) {
         threads_.emplace_back(&ThreadPool::WorkerThread, this);
-        ++active_thread_;
     }
 }
 ThreadPool::~ThreadPool(){
