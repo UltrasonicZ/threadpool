@@ -4,6 +4,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <functional>
+// #include <chrono>
 
 class ThreadPool {
 public:
@@ -22,13 +23,18 @@ public:
     void Shutdown();
 private:
     void WorkerThread();
+    void ManagerThread();
 private:
     size_t min_thread_;
     size_t max_thread_;
-    size_t active_thread_;
+    size_t idle_thread_;
+    size_t work_thread_;
+    size_t destory_thread_;
     bool is_shutdown_;
+    bool is_destory_;
     std::mutex queue_mutex_;
     std::vector<std::thread> threads_;
+    std::thread mananger_;
     std::queue<std::function<void()>> task_queue_;
     std::condition_variable condition_;
 };

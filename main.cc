@@ -11,11 +11,11 @@ int main() {
         // 示例：向线程池添加任务并执行
         for (int i = 0; i < 20; ++i) {
             auto func = [&](int id) {
-                std::this_thread::sleep_for(std::chrono::seconds(2));
                 {   
                     std::unique_lock<std::mutex> lock(coutmutex);
                     std::cout << "Task " << id << " executed by thread " << std::this_thread::get_id() << std::endl;
                 }
+                std::this_thread::sleep_for(std::chrono::seconds(2));
             };
             pool.AddTask(func, i);
         }
