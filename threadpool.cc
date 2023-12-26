@@ -1,4 +1,5 @@
 #include "threadpool.h"
+#include <cassert>
 
 ThreadPool::ThreadPool(size_t pool_size) 
     : is_shutdown_(false)
@@ -12,15 +13,20 @@ ThreadPool::~ThreadPool(){
     Shutdown();
 }
 void ThreadPool::WorkerThread() {
+    int i = 0;
     while (true) {
-        std::unique_lock<std::mutex> lock(queue_mutex_);
-        condition_.wait(lock, [this] { return is_shutdown_ || !task_queue_.empty(); });
-        if (is_shutdown_ && task_queue_.empty()) {
-            return;
+        std::function<void()> task;
+        {
+            std::unique_lock<std::mutex> lock(queue_mutex_); 
+            condition_.wait(lock, [&i, this] { 
+                return is_shutdown_ || !task_queue_.empty(); 
+            });
+            if (is_shutdown_ && task_queue_.empty()) {
+                return;
+            }
+            task = std::move(task_queue_.front());
+            task_queue_.pop();
         }
-        auto task = std::move(task_queue_.front());
-        task_queue_.pop();
-        lock.unlock();  // 解锁互斥量，允许其他线程添加任务
         task();
     }
 }

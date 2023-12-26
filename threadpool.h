@@ -13,7 +13,6 @@ public:
     // 添加任务到线程池   
     template<class F, class... Args>
     void AddTask(F&& f, Args&&... args) {
-        std::cout << "AddTask : " << std::endl; 
         auto task = std::bind(std::forward<F>(f), std::forward<Args>(args)...);
         {
             std::unique_lock<std::mutex> lock(queue_mutex_);
